@@ -4,6 +4,8 @@ const Role = require("../Database/roles");
 const { userSignup } = require("./authFunctions");
 const Complaint = require("../Database/complaint");
 
+//admin role
+
 const adminController = {
   registerSupport: async (req, res) => {
     try {
