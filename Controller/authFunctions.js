@@ -4,6 +4,7 @@ require('dotenv').config();
 const User = require("../Database/users");
 const Role = require("../Database/roles");
 const UserRole = require("../Database/user_roles");
+const nodemailer = require('nodemailer');
 
 const userSignup = async (req, role, res) => {
   try {
