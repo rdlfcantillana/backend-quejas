@@ -9,7 +9,7 @@ router.post('/create-complaint', userAuth, checkRole(['ciudadano']), ciudadanoCo
 // Ruta para ver las quejas
 router.get('/view-complaints', userAuth, checkRole(['ciudadano']), ciudadanoController.viewComplaints);
 
-router.get('/view-responses', userAuth, ciudadanoController.viewResponses);
+router.get('/view-responses', userAuth,checkRole(['ciudadano']), ciudadanoController.viewResponses);
 
 
 module.exports = router;
