@@ -6,7 +6,11 @@ const { userAuth, checkRole } = require('../Controller/authFunctions');
 // Ruta para registrar un support
 router.post('/register-support', userAuth, checkRole(['admin']), adminController.registerSupport);
 
-router.get('/view-all-complaints-admin', userAuth, checkRole(['admin']), adminController.viewAllComplaintsadmin);
+
+
+router.get('/view-all-complaints-admin', userAuth, adminController.viewAllComplaintsAdmin);
+
+router.get('/test' , userAuth, adminController.testAuth);
 // Ruta para registrar un SE
 router.post('/register-se', userAuth, checkRole(['admin']), adminController.registerSE);
 

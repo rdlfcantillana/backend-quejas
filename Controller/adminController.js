@@ -3,6 +3,7 @@ const UserRole = require("../Database/user_roles");
 const Role = require("../Database/roles");
 const { userSignup } = require("./authFunctions");
 const Complaint = require("../Database/complaint");
+const Status = require("../Database/status");
 
 //admin role
 
@@ -17,6 +18,14 @@ const adminController = {
   },
 
 
+  testAuth: async(req,res) => {
+    try{
+      const test = res.user.role
+      return res.status(200).json({message: test});
+    }catch(error){
+      return error
+    }
+  },
 
   registerSE: async (req, res) => {
     try {
@@ -61,17 +70,23 @@ const adminController = {
     }
   },
 
-  viewAllComplaintsadmin: async (req, res) => {
+  viewAllComplaintsAdmin: async (req, res) => {
     try {
       console.log('Verificando rol de usuario:', req.user.roles);
       if (!Array.isArray(req.user.roles) || !req.user.roles.includes('admin')) {
         return res.status(403).json({ message: "You do not have permission to view complaints." });
       }
 
-      const complaints = await Complaint.find().populate("createdBy assignedTo");
+      const complaints = await Complaint.find()
+        .populate("type_id")
+        .populate("status_id")
+        .populate("createdBy")
+        .populate("assignedTo");
+
       console.log('Quejas encontradas:', complaints);
       res.status(200).json(complaints);
     } catch (error) {
+      console.error('Error fetching complaints:', error);
       res.status(500).json({ message: error.message });
     }
   },

@@ -144,9 +144,9 @@ const validateCI = async ci => {
 
 
 const userAuth = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
+  const authHeader = req.headers.authorization;
   if (!authHeader) return res.sendStatus(403);
-  const token = authHeader.split(' ')[1];
+  const token = authHeader && authHeader.split(" ")[1];
   jwt.verify(token, process.env.APP_SECRET, async (err, decoded) => {
     if (err) return res.sendStatus(403);
 

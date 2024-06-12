@@ -7,7 +7,7 @@ const supportController = {
   viewAllComplaints: async (req, res) => {
     try {
       console.log('Verificando rol de usuario:', req.user.roles);
-      if (!Array.isArray(req.user.roles) || !req.user.roles.includes('support')) {
+      if (!Array.isArray(req.user.roles) || !req.user.roles.includes('admin'|| 'support')) {
         return res.status(403).json({ message: "You do not have permission to view complaints." });
       }
 
