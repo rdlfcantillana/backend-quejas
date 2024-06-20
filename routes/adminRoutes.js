@@ -8,9 +8,9 @@ router.post('/register-support', userAuth, checkRole(['admin']), adminController
 
 
 
-router.get('/view-all-complaints-admin', userAuth, adminController.viewAllComplaintsAdmin);
+router.get('/view-all-complaints-admin', userAuth, checkRole('admin'), adminController.viewAllComplaintsAdmin);
 
-router.get('/test' , userAuth, adminController.testAuth);
+router.get('/test' , userAuth, checkRole(['admin']), adminController.testAuth);
 // Ruta para registrar un SE
 router.post('/register-se', userAuth, checkRole(['admin']), adminController.registerSE);
 
@@ -18,9 +18,11 @@ router.post('/register-se', userAuth, checkRole(['admin']), adminController.regi
 router.get('/view-supports', userAuth, checkRole(['admin']), adminController.viewSupports);
 
 // Ruta para ver todos los SEs
-router.get('/view-ses', userAuth, checkRole(['admin']), adminController.viewSEs);
+router.get('/view-ses', userAuth, checkRole(['admin','support']), adminController.viewSEs);
 
 // Ruta para eliminar un empleado
 router.delete('/delete-employee/:id', userAuth, checkRole(['admin']), adminController.deleteEmployee);
+
+router.delete('/complaints/:id', userAuth, checkRole(['admin', 'support']), adminController.deleteComplaint);
 
 module.exports = router;

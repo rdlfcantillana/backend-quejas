@@ -26,18 +26,19 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: 'http://localhost:5173',
+  origin: 'http://localhost:5173', // Cambia esto al origen de tu frontend
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials']
 };
 
 app.use(cors(corsOptions));
+
 app.use('/api/user', userRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/se', seRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/ciudadano', ciudadanoRouter); 
+app.use('/api/ciudadano', ciudadanoRouter);
 
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);

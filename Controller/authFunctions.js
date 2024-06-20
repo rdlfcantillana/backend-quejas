@@ -1,23 +1,26 @@
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 require('dotenv').config();
+const nodemailer = require('nodemailer');
 const User = require("../Database/users");
 const Role = require("../Database/roles");
 const UserRole = require("../Database/user_roles");
-const nodemailer = require('nodemailer');
+const Session = require("../Database/session");
+const ResetToken = require('../Database/resetTokenSchema');
 
 const userSignup = async (req, role, res) => {
   try {
-    let ciNotRegistered = await validateCI(req.body.ci);
+    const ciNotRegistered = await validateCI(req.body.ci);
     if (!ciNotRegistered) {
       return res.status(400).json({
-        message: `CI is already registered.`
+        message: "CI is already registered."
+
       });
     }
-    let emailNotRegistered = await validateEmail(req.body.email);
+    const emailNotRegistered = await validateEmail(req.body.email);
     if (!emailNotRegistered) {
       return res.status(400).json({
-        message: `Email is already registered.`
+        message: "Email is already registered."
       });
     }
     const password = await bcrypt.hash(req.body.password, 12);
@@ -73,9 +76,21 @@ const addUserRole = async (req, res) => {
   }
 };
 
+const getUsersWithCitizenRole = async (req, res) => {
+  try {
+    const citizenRole = await Role.findOne({ name: 'ciudadano' });
+    const users = await UserRole.find({ role_id: citizenRole._id }).populate('user_id');
+    const populatedUsers = users.map(ur => ur.user_id).filter(user => user !== null);
+    res.status(200).json(populatedUsers);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+
 const employeeLogin = async (req, res) => {
   try {
-    let { ci, password } = req.body;
+    const { ci, password } = req.body;
     const user = await User.findOne({ ci });
     if (!user) {
       return res.status(404).json({
@@ -83,7 +98,7 @@ const employeeLogin = async (req, res) => {
       });
     }
     
-    let isMatch = await bcrypt.compare(password, user.password);
+    const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
       return res.status(403).json({
         message: "Incorrect CI or password."
@@ -93,7 +108,15 @@ const employeeLogin = async (req, res) => {
     const userRoles = await UserRole.find({ user_id: user._id }).populate('role_id');
     const roles = userRoles.map(ur => ur.role_id.name);
 
-    let token = jwt.sign(
+    // Verificar si ya tiene una sesión activa
+    const activeSession = await Session.findOne({ user_id: user._id });
+    if (activeSession) {
+      return res.status(403).json({
+        message: "User already has an active session. Please log out from other devices."
+      });
+    }
+
+    const token = jwt.sign(
       {
         roles: roles,
         ci: user.ci,
@@ -103,7 +126,10 @@ const employeeLogin = async (req, res) => {
       { expiresIn: "3 days" }
     );
 
-    let result = {
+    const session = new Session({ user_id: user._id, token });
+    await session.save();
+
+    const result = {
       ci: user.ci,
       roles: roles,
       email: user.email,
@@ -122,24 +148,24 @@ const employeeLogin = async (req, res) => {
     });
     
   } catch (err) {
+    console.error("Error in employeeLogin:", err); // Añadir registro de errores para depuración
     return res.status(500).json({
       message: `${err.message}`
     });
   }
 };
-
 const ciudadanoLogin = async (req, res) => {
   await employeeLogin({ ...req, body: { ...req.body, role: 'ciudadano' } }, res);
 };
 
 
 const validateEmail = async email => {
-  let user = await User.findOne({ email });
+  const user = await User.findOne({ email });
   return user ? false : true;
 };
 
 const validateCI = async ci => {
-  let user = await User.findOne({ ci });
+  const user = await User.findOne({ ci });
   return user ? false : true;
 };
 
@@ -187,13 +213,152 @@ const checkRole = roles => async (req, res, next) => {
   next();
 };
 
+const getUserProfile = async (req, res) => {
+  try {
+    console.log("Fetching user profile for user ID:", req.user._id);
+    const user = await User.findById(req.user._id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    const userRoles = await UserRole.find({ user_id: user._id }).populate('role_id');
+    const roles = userRoles.map(ur => ur.role_id.name);
+
+    res.status(200).json({ ...user._doc, roles });
+  } catch (error) {
+    console.error("Error fetching user profile:", error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const updateUserProfile = async (req, res) => {
+  try {
+    const { name, lastname, email, password } = req.body;
+    const updatedFields = { name, lastname, email };
+
+    if (password) {
+      updatedFields.password = await bcrypt.hash(password, 12);
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(req.user._id, updatedFields, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const logout = async (req, res) => {
+  try {
+    const token = req.headers.authorization.split(' ')[1];
+    const decoded = jwt.verify(token, process.env.APP_SECRET);
+
+    // Elimina la sesión del usuario basada en el token
+    await Session.findOneAndDelete({ token });
+
+    // Elimina la cookie JWT
+    res.clearCookie('jwt');
+    
+    return res.status(200).json({
+      message: "User logged out successfully."
+    });
+  } catch (err) {
+    console.error("Error in logout:", err);
+    return res.status(500).json({
+      message: `${err.message}`
+    });
+  }
+};
+
+
+// Crear transportador de nodemailer
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL,
+    pass: process.env.EMAIL_PASSWORD
+  }
+});
+
+const sendResetPasswordEmail = async (req, res) => {
+  const { email } = req.body;
+  try {
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(404).json({ message: "Email not found." });
+    }
+
+    const token = jwt.sign({ email: user.email }, process.env.APP_SECRET, { expiresIn: '1h' });
+
+    // Guardar el token en la base de datos
+    const resetToken = new ResetToken({
+      userId: user._id,
+      token: token
+    });
+    await resetToken.save();
+
+    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    
+    const mailOptions = {
+      from: process.env.EMAIL,
+      to: email,
+      subject: 'Password Reset',
+      text: `Click on the link to reset your password: ${resetLink}`
+    };
+
+    await transporter.sendMail(mailOptions);
+
+    res.status(200).json({ message: 'Reset password email sent.' });
+  } catch (error) {
+    console.error('Error in sendResetPasswordEmail:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+const resetPassword = async (req, res) => {
+  const { token, password } = req.body;
+  try {
+    const decoded = jwt.verify(token, process.env.APP_SECRET);
+    const resetToken = await ResetToken.findOne({ token });
+
+    if (!resetToken) {
+      return res.status(400).json({ message: 'Invalid or expired token.' });
+    }
+
+    if (resetToken.used) {
+      return res.status(400).json({ message: 'Token has already been used.' });
+    }
+
+    const user = await User.findOne({ _id: resetToken.userId });
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    user.password = await bcrypt.hash(password, 12);
+    await user.save();
+
+    // Marcar el token como usado
+    resetToken.used = true;
+    await resetToken.save();
+
+    res.status(200).json({ message: 'Password reset successful.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 module.exports = {
   userSignup,
   addUserRole,
+  getUsersWithCitizenRole,
   employeeLogin,
   ciudadanoLogin,
   validateEmail,
   validateCI,
   userAuth,
-  checkRole
+  checkRole,
+  getUserProfile,
+  updateUserProfile,
+  sendResetPasswordEmail,
+  resetPassword,
+  logout
 };

@@ -33,8 +33,15 @@ const ComplaintSchema = new Schema({
         default: 'Point'
     },
     location_coordinates: {
-        type: [Number],
-        required: true
+        // type: [String],
+        lat:{
+            type: Number,
+            default: null
+        },
+        lon: {
+            type: Number,
+            default: null   
+        },
     },
     createdAt: {
         type: Date,

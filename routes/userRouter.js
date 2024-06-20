@@ -5,7 +5,16 @@ const {
   employeeLogin,
   checkRole,
   userSignup,
-  addUserRole
+  addUserRole,
+  getUsersWithCitizenRole,
+  getUserProfile,
+  updateUserProfile,
+  sendResetPasswordEmail,
+  resetPassword,
+  logout
+
+ 
+  
 } = require("../Controller/authFunctions");
 
 // Rutas de Registro
@@ -26,6 +35,8 @@ router.post("/add-role", userAuth, checkRole(["admin"]), async (req, res) => {
   await addUserRole(req, res);
 });
 
+router.get('/citizen-users', userAuth, checkRole(['admin']), getUsersWithCitizenRole); // Agrega esta línea
+
 // Rutas de Login
 router.post("/login-ciudadano", async (req, res) => {
   await ciudadanoLogin(req, res);
@@ -34,6 +45,17 @@ router.post("/login-ciudadano", async (req, res) => {
 router.post("/login-employee", async (req, res) => {
   await employeeLogin(req, res);
 });
+
+// Rutas de perfil
+router.get('/profile', userAuth,  checkRole(['admin', 'ciudadano','support', 'se']), getUserProfile);
+router.put('/profile', userAuth,  checkRole(['admin', 'ciudadano', 'support', 'se']), updateUserProfile);
+
+// ruta de logout
+router.post('/logout', userAuth, checkRole(['admin', 'ciudadano','support', 'se']), logout);
+
+router.post('/forgot-password', sendResetPasswordEmail);
+
+router.post('/reset-password', resetPassword);
 
 
 // Rutas Protegidas

@@ -4,16 +4,34 @@ let io;
 
 module.exports = {
   init: (server) => {
-    io = socketIo(server);
+    io = socketIo(server, {
+      cors: {
+        origin: "http://localhost:5173", // Cambia esto al origen de tu frontend
+        methods: ["GET", "POST"],
+        allowedHeaders: ["my-custom-header"],
+        credentials: true
+      },
+      transports: ["websocket", "polling"],
+    });
+
     io.on('connection', (socket) => {
       console.log('Nuevo cliente conectado');
+
       socket.on('joinRoom', (room) => {
         socket.join(room);
       });
+
       socket.on('disconnect', () => {
         console.log('Cliente desconectado');
       });
+
+      socket.on("testUnassinged", (complaintId) =>{
+
+        io.emit('complaintUnassigned', complaintId);
+      } )
+
     });
+
     return io;
   },
   getIo: () => {

@@ -10,13 +10,18 @@ const seController = {
       if (!req.user.roles.includes('se')) {
         return res.status(403).json({ message: "You do not have permission to view complaints." });
       }
-
+  
       const seId = req.user._id;
       console.log('ID de SE:', seId);
-
-      const complaints = await Complaint.find({ assignedTo: seId }).populate("createdBy assignedTo");
+  
+      const complaints = await Complaint.find({ assignedTo: seId })
+        .populate("type_id")
+        .populate("status_id")
+        .populate("createdBy")
+        .populate("assignedTo");
+  
       console.log('Quejas encontradas:', complaints);
-
+  
       res.status(200).json(complaints);
     } catch (error) {
       res.status(500).json({ message: error.message });
@@ -79,6 +84,8 @@ const seController = {
       const { complaintId, response } = req.body;
       const seId = req.user._id;
 
+
+      
       const complaint = await Complaint.findOne({ _id: complaintId, assignedTo: seId });
       if (!complaint) {
         return res.status(404).json({ message: "Complaint not found or not assigned to you." });
@@ -106,7 +113,38 @@ const seController = {
     } catch (error) {
       res.status(500).json({ message: error.message });
     }
+  },
+
+  
+  getSentResponses: async (req, res) => {
+    try {
+      if (!req.user.roles.includes('se')) {
+        return res.status(403).json({ message: "You do not have permission to view sent responses." });
+      }
+
+      const seId = req.user._id;
+
+      const responses = await Response.find({ createdBy: seId })
+      
+      
+      .populate('complaint_id', 'description createdAt') 
+      
+      .populate({
+        path: 'complaint_id',
+        populate: {
+          path: 'type_id',
+          select: 'name'
+        }
+      });
+      
+      res.status(200).json(responses);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
   }
 };
+
+
+
 
 module.exports = seController;

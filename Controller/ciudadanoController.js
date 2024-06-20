@@ -11,8 +11,10 @@ const ciudadanoController = {
         return res.status(403).json({ message: "You do not have permission to create complaints." });
       }
 
-      const { description, latitude, longitude, type_id } = req.body;
+      //const { description, latitude, longitude, type_id } = req.body;
+      const { description, type_id , location_coordinates } = req.body;
       const userId = req.user._id;
+      console.log(req.body)
 
       const user = await User.findById(userId);
       if (!user) {
@@ -30,7 +32,7 @@ const ciudadanoController = {
         type_id: new mongoose.Types.ObjectId(type_id),
         status_id: pendingStatus._id,
         location_type: "Point",
-        location_coordinates: [longitude, latitude]
+        location_coordinates
       });
 
       await newComplaint.save();
