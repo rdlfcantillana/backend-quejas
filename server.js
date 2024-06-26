@@ -34,10 +34,12 @@ const corsOptions = {
 
 app.use(cors(corsOptions));
 
+
 app.use('/api/user', userRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/se', seRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/ciudadano', ciudadanoRouter);
 app.use('/api/ciudadano', ciudadanoRouter);
 
 server.listen(PORT, () => {

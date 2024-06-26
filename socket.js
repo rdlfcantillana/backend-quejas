@@ -17,9 +17,11 @@ module.exports = {
     io.on('connection', (socket) => {
       console.log('Nuevo cliente conectado');
 
+
       socket.on('joinRoom', (room) => {
         socket.join(room);
       });
+
 
       socket.on('disconnect', () => {
         console.log('Cliente desconectado');
@@ -30,7 +32,14 @@ module.exports = {
         io.emit('complaintUnassigned', complaintId);
       } )
 
+
+      socket.on("testUnassinged", (complaintId) =>{
+
+        io.emit('complaintUnassigned', complaintId);
+      } )
+
     });
+
 
     return io;
   },
