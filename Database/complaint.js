@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const ComplaintType = require("./complaint_type");
 
 const ComplaintSchema = new Schema({
     description: {
@@ -8,7 +9,7 @@ const ComplaintSchema = new Schema({
     },
     type_id: {
         type: Schema.Types.ObjectId,
-        ref: 'ComplaintType',
+        ref: "type",
         required: true
     },
     status_id: {
@@ -32,8 +33,15 @@ const ComplaintSchema = new Schema({
         default: 'Point'
     },
     location_coordinates: {
-        type: [Number],
-        required: true
+        // type: [String],
+        lat:{
+            type: Number,
+            default: null
+        },
+        lon: {
+            type: Number,
+            default: null   
+        },
     },
     createdAt: {
         type: Date,

@@ -8,4 +8,5 @@ const ComplaintTypeSchema = new Schema({
     }
 });
 
-module.exports = mongoose.model('ComplaintType', ComplaintTypeSchema);
+
+module.exports = mongoose.model('type', ComplaintTypeSchema);
