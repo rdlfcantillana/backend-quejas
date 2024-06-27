@@ -1,3 +1,4 @@
+require('dotenv').config(); 
 const express = require('express');
 const http = require('http');
 const cookieParser = require('cookie-parser');
@@ -16,7 +17,6 @@ const io = socketConfig.init(server);
 
 const PORT = process.env.PORT || 4000;
 
-// Verifica que la variable de entorno DB_CONNECT esté presente y bien formateadaa
 if (!process.env.DB_CONNECT) {
   throw new Error('DB_CONNECT environment variable is not defined');
 }
@@ -28,7 +28,7 @@ mongoose.connect(process.env.DB_CONNECT, {
   console.log('MongoDB connected...');
 }).catch(err => {
   console.error('MongoDB connection error:', err);
-  process.exit(1);
+  process.exit(1); // Salir si la conexión falla
 });
 
 app.use(express.json());
