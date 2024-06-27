@@ -29,6 +29,7 @@ const corsOptions = {
   origin: ['http://localhost:8081','http://localhost:5173','https://backend-quejas-production.up.railway.app'],
   credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  preflightContinuar:falso, 
   allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials', 'source']
 };
 
