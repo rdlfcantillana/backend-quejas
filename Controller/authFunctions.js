@@ -281,10 +281,7 @@ const transporter = nodemailer.createTransport({
 
 const sendResetPasswordEmail = async (req, res) => {
   const { email } = req.body;
-  const { source } = req.headers;
-  
   try {
-    console.log(`Received request to send reset password email to: ${email}`);
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Email not found." });
@@ -292,21 +289,15 @@ const sendResetPasswordEmail = async (req, res) => {
 
     const token = jwt.sign({ email: user.email }, process.env.APP_SECRET, { expiresIn: '1h' });
 
+    // Guardar el token en la base de datos
     const resetToken = new ResetToken({
       userId: user._id,
       token: token
     });
     await resetToken.save();
 
-    let resetLink;
-    if (source === 'react-vite') {
-      resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;//
-    } else if (source === 'react-native') {
-      resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;//
-    } else {
-      return res.status(400).json({ message: 'Invalid source.' });
-    }
-
+    const resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;
+    
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
@@ -322,7 +313,6 @@ const sendResetPasswordEmail = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
-
 
 
 const resetPassword = async (req, res) => {
