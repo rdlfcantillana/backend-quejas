@@ -12,8 +12,6 @@ const {
   sendResetPasswordEmail,
   resetPassword,
   logout
-
- 
   
 } = require("../Controller/authFunctions");
 
@@ -34,6 +32,8 @@ router.post("/register-ciudadano", async (req, res) => {
 router.post("/add-role", userAuth, checkRole(["admin"]), async (req, res) => {
   await addUserRole(req, res);
 });
+
+router.get('/citizen-users', userAuth, checkRole(['admin']), getUsersWithCitizenRole); // Agrega esta línea
 
 router.get('/citizen-users', userAuth, checkRole(['admin']), getUsersWithCitizenRole); // Agrega esta línea
 

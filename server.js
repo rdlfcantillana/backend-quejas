@@ -1,3 +1,4 @@
+require('dotenv').config();//ulltimo
 const express = require('express');
 const http = require('http');
 const cookieParser = require('cookie-parser');
@@ -29,15 +30,21 @@ const corsOptions = {
   origin: '*', 
   credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
+  origin: '*', 
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials']
 };
 
 // app.use(cors(corsOptions));
 app.use(cors());
+app.use(cors(corsOptions));
+
 app.use('/api/user', userRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/se', seRouter);
 app.use('/api/admin', adminRouter);
+app.use('/api/ciudadano', ciudadanoRouter);
 app.use('/api/ciudadano', ciudadanoRouter);
 
 server.listen(PORT, () => {

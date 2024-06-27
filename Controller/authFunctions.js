@@ -296,7 +296,7 @@ const sendResetPasswordEmail = async (req, res) => {
     });
     await resetToken.save();
 
-    const resetLink = `http://localhost:5173/reset-password/${token}`;
+    const resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;
     
     const mailOptions = {
       from: process.env.EMAIL,
@@ -313,6 +313,7 @@ const sendResetPasswordEmail = async (req, res) => {
     res.status(500).json({ message: error.message });
   }
 };
+
 
 const resetPassword = async (req, res) => {
   const { token, password } = req.body;
