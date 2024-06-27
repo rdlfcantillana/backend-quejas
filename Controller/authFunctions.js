@@ -300,9 +300,9 @@ const sendResetPasswordEmail = async (req, res) => {
 
     let resetLink;
     if (source === 'react-vite') {
-      resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;
+      resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;//
     } else if (source === 'react-native') {
-      resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;
+      resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;//
     } else {
       return res.status(400).json({ message: 'Invalid source.' });
     }
