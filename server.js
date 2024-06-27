@@ -16,7 +16,7 @@ const io = socketConfig.init(server);
 
 const PORT = process.env.PORT || 4000;
 
-mongoose.connect(process.env.DB_CONNECT)
+mongoose.connect("process.env.DB_CONNECT")
   .then(() => {
     console.log('MongoDB connected...');
   });
