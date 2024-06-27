@@ -26,18 +26,19 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: 'http://localhost:5173',
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  origin: '*', 
+  credentials: false,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials']
 };
 
-app.use(cors(corsOptions));
+// app.use(cors(corsOptions));
+app.use(cors());
 app.use('/api/user', userRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/se', seRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/ciudadano', ciudadanoRouter); 
+app.use('/api/ciudadano', ciudadanoRouter);
 
 server.listen(PORT, () => {
   console.log(`Server started on port ${PORT}`);
