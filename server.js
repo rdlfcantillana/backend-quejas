@@ -16,7 +16,7 @@ const io = socketConfig.init(server);
 
 const PORT = process.env.PORT || 4000;
 
-// Verifica que la variable de entorno DB_CONNECT esté presente y bien formateada
+// Verifica que la variable de entorno DB_CONNECT esté presente y bien formateadaa
 if (!process.env.DB_CONNECT) {
   throw new Error('DB_CONNECT environment variable is not defined');
 }
