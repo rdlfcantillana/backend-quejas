@@ -16,40 +16,38 @@ const io = socketConfig.init(server);
 
 const PORT = process.env.PORT || 4000;
 
-mongoose.connect("process.env.DB_CONNECT")
-  .then(() => {
-    console.log('MongoDB connected...');
-  });
+// Verifica que la variable de entorno DB_CONNECT esté presente y bien formateada
+if (!process.env.DB_CONNECT) {
+  throw new Error('DB_CONNECT environment variable is not defined');
+}
+
+mongoose.connect(process.env.DB_CONNECT, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+}).then(() => {
+  console.log('MongoDB connected...');
+}).catch(err => {
+  console.error('MongoDB connection error:', err);
+  process.exit(1);
+});
 
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: ['*'],
+  origin: '*', 
   credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials', 'source']
+  allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials']
 };
 
 app.use(cors(corsOptions));
-app.options('*', cors(corsOptions));
-
-app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization, source");
-  if (req.method === 'OPTIONS') {
-    res.header('Access-Control-Allow-Methods', 'PUT, POST, PATCH, DELETE, GET');
-    return res.status(200).json({});
-  }
-  next();
-});
 
 app.use('/api/user', userRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/se', seRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/ciudadano', ciudadanoRouter);
 app.use('/api/ciudadano', ciudadanoRouter);
 
 server.listen(PORT, () => {
