@@ -26,7 +26,7 @@ app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 
 const corsOptions = {
-  origin: '*', 
+  origin: ['*','https://backend-quejas-production.up.railway.app'],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials', 'source']
