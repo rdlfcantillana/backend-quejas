@@ -12,18 +12,6 @@ const {
   sendResetPasswordEmail,
   resetPassword,
   logout
-
- 
-  
-  addUserRole,
-  getUsersWithCitizenRole,
-  getUserProfile,
-  updateUserProfile,
-  sendResetPasswordEmail,
-  resetPassword,
-  logout
-
- 
   
 } = require("../Controller/authFunctions");
 
