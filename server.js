@@ -7,10 +7,10 @@ const supportRouter = require('./routes/supportRoutes');
 const seRouter = require('./routes/seRoutes');
 const adminRouter = require('./routes/adminRoutes');
 const ciudadanoRouter = require('./routes/ciudadanoRoutes'); 
-const socketConfig = require('./socket');
+// const socketConfig = require('./socket');
 const app = express();
 const server = http.createServer(app);
-const io = socketConfig.init(server);
+// const io = socketConfig.init(server);
 
 const PORT = process.env.PORT || 4000;
 
