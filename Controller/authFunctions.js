@@ -296,8 +296,8 @@ const sendResetPasswordEmail = async (req, res) => {
     });
 
     await resetToken.save();
-    const localUrl = `http://localhost:4000/api/user/reset-password/${token}`;
-    //const deployUrl = `http://` //aqui esta el url de la password
+    const localUrl = `https://backend-quejas-production.up.railway.app/api/user/reset-password/${token}`;
+    //const deployUrl = `https://backend-quejas-production.up.railway.app/api/user/reset-password/${token}`;
     const resetLink = `https://backend-quejas-production.up.railway.app/api/user/reset-password/${token}`;
 
     const mailOptions = {
