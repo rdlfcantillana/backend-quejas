@@ -32,7 +32,9 @@ const corsOptions = {
   allowedHeaders: ['Content-Type', 'Authorization', 'Access-Control-Allow-Credentials', 'source']
 };
 
-app.use(cors(corsOptions));
+
+app.options('*', cors(corsOptions)); // Enable preflight response for all routes
+
 
 
 app.use('/api/user', userRouter);
