@@ -1,6 +1,5 @@
-require('dotenv').config();//ulltimo
 const express = require('express');
-const http = require('http');
+const http = require('http')
 const cookieParser = require('cookie-parser');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -25,11 +24,12 @@ mongoose.connect(process.env.DB_CONNECT)
 app.use(express.json());
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
+app.use(express.static("Pages"))
+
+app.set("view engine", "pug");
+app.set("views", "./Pages")
 
 const corsOptions = {
-  origin: '*', 
-  credentials: false,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
   origin: '*', 
   credentials: false,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'],
@@ -38,13 +38,11 @@ const corsOptions = {
 
 // app.use(cors(corsOptions));
 app.use(cors());
-app.use(cors(corsOptions));
-
+app.use(cors(corsOptions))
 app.use('/api/user', userRouter);
 app.use('/api/support', supportRouter);
 app.use('/api/se', seRouter);
 app.use('/api/admin', adminRouter);
-app.use('/api/ciudadano', ciudadanoRouter);
 app.use('/api/ciudadano', ciudadanoRouter);
 
 server.listen(PORT, () => {

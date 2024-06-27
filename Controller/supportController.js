@@ -3,7 +3,7 @@ const User = require("../Database/users");
 const Notification = require("../Database/notification");
 const UserRole = require("../Database/user_roles");
 const Role = require("../Database/roles")
-const io = require("../socket")
+const io = require("../../backend-quejas/socket")
 
 const supportController = {
   viewAllComplaints: async (req, res) => {

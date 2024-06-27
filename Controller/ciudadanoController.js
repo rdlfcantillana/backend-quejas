@@ -12,8 +12,10 @@ const ciudadanoController = {
         return res.status(403).json({ message: "You do not have permission to create complaints." });
       }
 
-      const { description, latitude, longitude, type_id } = req.body;
+      const { description, type_id, location_coordinates } = req.body;
       const userId = req.user._id;
+
+      console.log(req.body);
 
       const user = await User.findById(userId);
       if (!user) {
@@ -36,7 +38,10 @@ const ciudadanoController = {
         type_id: new mongoose.Types.ObjectId(type_id),
         status_id: pendingStatus._id,
         location_type: "Point",
-        location_coordinates: [longitude, latitude]
+        location_coordinates: {
+          lat: location_coordinates.lat,
+          lon: location_coordinates.lon,
+        },
       });
 
       await newComplaint.save();
@@ -109,7 +114,7 @@ const ciudadanoController = {
             { path: 'status_id', select: 'name' }
           ]
         })
-        .populate('createdBy', 'name lastname');
+        .populate('createdBy', 'name lastname'); // Poblamos createdBy para obtener el nombre y apellido del SE
 
       // Filtrar respuestas donde la queja no pertenece al usuario actual
       const filteredResponses = responses.filter(response => response.complaint_id);
@@ -161,7 +166,12 @@ const ciudadanoController = {
     }
   },
 
+
+
+
 };
+
+
 
 
 module.exports = ciudadanoController;

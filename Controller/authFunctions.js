@@ -280,29 +280,31 @@ const transporter = nodemailer.createTransport({
 });
 
 const sendResetPasswordEmail = async (req, res) => {
-  const { email } = req.body;
+  const { email} = req.body;
   try {
+
     const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).json({ message: "Email not found." });
     }
 
     const token = jwt.sign({ email: user.email }, process.env.APP_SECRET, { expiresIn: '1h' });
-
     // Guardar el token en la base de datos
     const resetToken = new ResetToken({
       userId: user._id,
       token: token
     });
-    await resetToken.save();
 
-    const resetLink = `https://backend-quejas-production.up.railway.app/reset-password/${token}`;
-    
+    await resetToken.save();
+    const localUrl = `http://localhost:4000/api/user/reset-password/${token}`;
+    //const deployUrl = `http://` //aqui esta el url de la password
+    const resetLink = `https://backend-quejas-production.up.railway.app/api/user/reset-password/${token}`;
+
     const mailOptions = {
       from: process.env.EMAIL,
       to: email,
       subject: 'Password Reset',
-      text: `Click on the link to reset your password: ${resetLink}`
+      text: `Click on the link to reset your password: ${localUrl}`
     };
 
     await transporter.sendMail(mailOptions);
@@ -314,34 +316,40 @@ const sendResetPasswordEmail = async (req, res) => {
   }
 };
 
+const resetPasswordForm = async (req, res) => {
+  res.render("auth/set_new_password" , {
+    title: "resetear contraseña",
+    pagina: "reset password"
+  })
+}
 
 const resetPassword = async (req, res) => {
-  const { token, password } = req.body;
+  const { password } = req.body;
+  const { token } = req.params;
   try {
     const decoded = jwt.verify(token, process.env.APP_SECRET);
     const resetToken = await ResetToken.findOne({ token });
-
     if (!resetToken) {
       return res.status(400).json({ message: 'Invalid or expired token.' });
     }
-
     if (resetToken.used) {
       return res.status(400).json({ message: 'Token has already been used.' });
     }
-
     const user = await User.findOne({ _id: resetToken.userId });
     if (!user) {
       return res.status(404).json({ message: "User not found." });
     }
-
     user.password = await bcrypt.hash(password, 12);
     await user.save();
-
-    // Marcar el token como usado
+    //Marcar el token como usado
     resetToken.used = true;
     await resetToken.save();
+    //res.status(200).json({ message: 'Password reset successful.' });
+    return res.render("auth/reset_password" , {
+      title: "resetear contraseña",
+      pagina: "reset password"   
+    });
 
-    res.status(200).json({ message: 'Password reset successful.' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
@@ -361,5 +369,6 @@ module.exports = {
   updateUserProfile,
   sendResetPasswordEmail,
   resetPassword,
+  resetPasswordForm,
   logout
 };
