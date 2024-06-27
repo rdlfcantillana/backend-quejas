@@ -1,4 +1,4 @@
-require('dotenv').config(); //aagregado
+require('dotenv').config();
 const express = require('express');
 const http = require('http');
 const cookieParser = require('cookie-parser');
@@ -17,19 +17,10 @@ const io = socketConfig.init(server);
 
 const PORT = process.env.PORT || 4000;
 
-if (!process.env.DB_CONNECT) {
-  throw new Error('DB_CONNECT environment variable is not defined');
-}
-
-mongoose.connect(process.env.DB_CONNECT, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-}).then(() => {
-  console.log('MongoDB connected...');
-}).catch(err => {
-  console.error('MongoDB connection error:', err);
-  process.exit(1); // Salir si la conexión falla
-});
+mongoose.connect(process.env.DB_CONNECT)
+  .then(() => {
+    console.log('MongoDB connected...');
+  });
 
 app.use(express.json());
 app.use(cookieParser());
