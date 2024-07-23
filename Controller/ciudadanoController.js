@@ -5,7 +5,7 @@ const User = require("../Database/users");
 const Status = require("../Database/status");
 const Response = require("../Database/response");
 const ComplaintType = require("../Database/complaint_type");
-const { getIo } = require('../socket'); // Asegúrate de ajustar la ruta
+const { getIo } = require('../socket'); 
 
 const ciudadanoController = {
   createComplaint: async (req, res) => {
@@ -99,6 +99,13 @@ const ciudadanoController = {
         status_id: undefined,
         type_id: undefined
       }));
+
+      // Emitir evento de visualización de quejas
+      const io = getIo();
+      io.emit('viewComplaints', { 
+        message: 'Complaints viewed successfully',
+        complaints: formattedComplaints 
+      });
   
       res.status(200).json(formattedComplaints);
     } catch (error) {
@@ -128,6 +135,14 @@ const ciudadanoController = {
       const filteredResponses = responses.filter(response => response.complaint_id);
 
       console.log('Respuestas encontradas:', filteredResponses);
+
+      // Emitir evento de visualización de respuestas
+      const io = getIo();
+      io.emit('viewResponses', { 
+        message: 'Responses viewed successfully',
+        responses: filteredResponses 
+      });
+
       res.status(200).json(filteredResponses);
     } catch (error) {
       console.error('Error fetching responses:', error);
@@ -138,6 +153,14 @@ const ciudadanoController = {
   getComplaintTypes: async (req, res) => {
     try {
       const complaintTypes = await ComplaintType.find({});
+      
+      // Emitir evento de obtención de tipos de quejas
+      const io = getIo();
+      io.emit('getComplaintTypes', { 
+        message: 'Complaint types retrieved successfully',
+        complaintTypes 
+      });
+
       res.status(200).json(complaintTypes);
     } catch (error) {
       console.error('Error in getComplaintTypes:', error);
@@ -159,6 +182,14 @@ const ciudadanoController = {
         .populate("assignedTo");
 
       console.log('Quejas encontradas:', complaints);
+
+      // Emitir evento de visualización de todas las quejas
+      const io = getIo();
+      io.emit('viewAllComplaintsCiudadano', { 
+        message: 'All complaints viewed successfully',
+        complaints 
+      });
+
       res.status(200).json(complaints);
     } catch (error) {
       console.error('Error fetching complaints:', error);
