@@ -12,10 +12,7 @@ const {
   sendResetPasswordEmail,
   resetPassword,
   resetPasswordForm,
-  logout
-
- 
-  
+  logout 
 } = require("../Controller/authFunctions");
 
 // Rutas de Registro

@@ -1,9 +1,11 @@
+// ciudadanoController.js
 const mongoose = require('mongoose');
 const Complaint = require("../Database/complaint");
 const User = require("../Database/users");
 const Status = require("../Database/status");
 const Response = require("../Database/response");
-const ComplaintType = require("../Database/complaint_type")
+const ComplaintType = require("../Database/complaint_type");
+const { getIo } = require('../socket'); // Asegúrate de ajustar la ruta
 
 const ciudadanoController = {
   createComplaint: async (req, res) => {
@@ -45,6 +47,13 @@ const ciudadanoController = {
       });
 
       await newComplaint.save();
+
+      // Emitir evento de creación de queja
+      const io = getIo();
+      io.emit('complaintCreated', { 
+        message: 'Complaint created successfully',
+        complaint: newComplaint 
+      });
 
       res.status(201).json({
         message: "Complaint created successfully",
@@ -97,7 +106,6 @@ const ciudadanoController = {
     }
   },
   
-
   viewResponses: async (req, res) => {
     try {
       console.log('Verificando rol de usuario:', req.user.roles);
@@ -127,13 +135,6 @@ const ciudadanoController = {
     }
   },
 
-
-
-
-
-
-
-
   getComplaintTypes: async (req, res) => {
     try {
       const complaintTypes = await ComplaintType.find({});
@@ -143,7 +144,6 @@ const ciudadanoController = {
       res.status(500).json({ message: error.message });
     }
   },
-
 
   viewAllComplaintsCiudadano: async (req, res) => {
     try {
@@ -165,13 +165,6 @@ const ciudadanoController = {
       res.status(500).json({ message: error.message });
     }
   },
-
-
-
-
 };
-
-
-
 
 module.exports = ciudadanoController;
